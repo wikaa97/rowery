@@ -49,7 +49,7 @@ def save_rental(rental):
 
         
         with open(filename, "w") as file:
-            json.dump(data, file, indent=4)
+            json.dump(data, file)
 
         print(f"Wynajem zapisano pomyślnie w pliku {filename}.")
     except Exception as blad:
@@ -64,21 +64,38 @@ def load_rentals():
             with open(filename, "r") as file:
                 data = json.load(file)  # Wczytanie danych z pliku
 
-            # Sprawdzenie, czy dane są listą
-            if isinstance(data, list):
-                if data:
-                    print("\nAktywne wynajmy:\n")
-                    for rental in data:
-                        print(f"Imię klienta: {rental['customer_name']}")
-                        print(f"Długość wynajmu: {rental['rental_duration']} godzin")
-                        print(f"Koszt wynajmu: {calculate_cost(rental['rental_duration'])} PLN")
-                        print("-" * 25)
-                else:
-                    print("Brak zapisanych wynajmów.")
-            else:
-                print("Błąd: Plik zawiera nieprawidłowy format danych.")
+          
+                print("\nAktywne wynajmy:\n")
+                for rental in data:
+                    print(f"Imię klienta: {rental['customer_name']}")
+                    print(f"Długość wynajmu: {rental['rental_duration']} godzin")
+                    print(f"Koszt: {calculate_cost(rental['rental_duration'])} PLN")
+                    print("-_" * 25)
+               
         except ValueError:
             print(f"Plik {filename} nie istnieje.")
+
+def cancel_rental(customer_name):
+    folder_path = "data/"
+    filename = os.path.join(folder_path, "rentals.json")
+
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r") as file:
+                data = json.load(file)
+            rental_to_remove = None
+            for rental in data:
+                if rental['customer_name'].lower() == customer_name.lower():  # Porównanie ignorując wielkość liter
+                    rental_to_remove = rental
+                    break
+            if rental_to_remove:
+                data.remove(rental_to_remove)
+            print(f"Wynajem klienta {customer_name} został anulowany")
+            with open(filename, "w") as file:
+                    json.dump(data, file)
+        except ValueError:
+            print("Plik nie istnieje")
+         
 
 if __name__ == "__main__":
     while True:
@@ -96,6 +113,11 @@ if __name__ == "__main__":
                 rent_bike(customer_name,rental_duration)
             except ValueError:
                 print("Podana liczba musi być liczbą całkowitą")
+        elif option == "2":
+            load_rentals()
+        elif option == "3":
+            customer_name=input("Podaj nazwę klienta: ")
+            cancel_rental(customer_name)
         elif option == "5":
             print("Zakończenie programu")
             break
