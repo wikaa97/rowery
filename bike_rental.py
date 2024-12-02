@@ -95,6 +95,32 @@ def cancel_rental(customer_name):
                     json.dump(data, file)
         except ValueError:
             print("Plik nie istnieje")
+
+def generate_daily_report():
+    folder_path = "data/"
+    filename = os.path.join(folder_path, "rentals.json")
+
+    if os.path.exists(filename):
+        try:
+            # Wczytanie danych z pliku wynajmów
+            with open(filename, "r") as file:
+                data = json.load(file)
+
+            # Pobranie dzisiejszej daty
+            today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+            # Tworzenie nazwy pliku dla raportu dziennego
+            daily_report_filename = os.path.join(folder_path, f"daily_report_{today_date}.json")
+
+            # Zapisanie danych do pliku raportu
+            with open(daily_report_filename, "w") as report_file:
+                json.dump(data, report_file, indent=4)
+
+            print(f"Raport dzienny pomyślnie zapisano w pliku {daily_report_filename}.")
+        except ValueError:
+            print(f"Plik {filename} zawiera błędny format lub jest pusty.")
+    else:
+        print(f"Plik {filename} nie istnieje.")
          
 
 if __name__ == "__main__":
@@ -118,6 +144,8 @@ if __name__ == "__main__":
         elif option == "3":
             customer_name=input("Podaj nazwę klienta: ")
             cancel_rental(customer_name)
+        elif option == "4":
+            generate_daily_report()
         elif option == "5":
             print("Zakończenie programu")
             break
